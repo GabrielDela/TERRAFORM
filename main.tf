@@ -7,7 +7,7 @@ terraform {
   }
 
   backend "azurerm" {
-    
+
   }
 }
 
@@ -23,6 +23,7 @@ provider "azurerm" {
 # }
 
 resource "azurerm_app_service" "web_app" {
+#   count               = var.environment_suffix == "-prod" ? 1 : 0
   name                = "web-app-${var.project_name}${var.environment_suffix}"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
@@ -32,9 +33,11 @@ resource "azurerm_app_service" "web_app" {
 }
 
 resource "azurerm_app_service_plan" "web_app_plan" {
+#   count               = var.environment_suffix == "-prod" ? 1 : 0
   name                = "web-app-plan-${var.project_name}${var.environment_suffix}"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
+#   service_plan_id     = azurerm_app_service_plan.web_app_plan.id
 
   sku {
     tier = "Standard"
