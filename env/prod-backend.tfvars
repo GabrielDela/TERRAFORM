@@ -1,4 +1,4 @@
 resource_group_name  = "rg-tfstate"
 storage_account_name = "samfolabs2023"
 container_name       = "tfstate"
-key                  = "gdelahaye-prod.tfstate"
+key                  = "gdelahaye-pubsub-prod.tfstate"
