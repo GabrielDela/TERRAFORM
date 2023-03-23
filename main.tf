@@ -127,7 +127,7 @@ resource "azurerm_container_group" "console" {
   ip_address_type     = "None"
   dns_name_label      = "aci-console-${var.project_name}${var.environment_suffix}"
   os_type             = "Linux"
-  exposed_port = []
+  exposed_port        = []
 
   container {
     name   = "console"
