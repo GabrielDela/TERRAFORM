@@ -29,6 +29,13 @@ resource "azurerm_mssql_server" "sql-server" {
   administrator_login_password = data.azurerm_key_vault_secret.database-password.value
 }
 
+resource "azurerm_mssql_firewall_rule" "firewall" {
+  name             = "firewall-${var.project_name}${var.environment_suffix}"
+  server_id        = azurerm_mssql_server.sql-server.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
+
 resource "azurerm_mssql_database" "sql-db" {
   name         = "RabbitMqDemo"
   server_id    = azurerm_mssql_server.sql-server.id
@@ -106,6 +113,32 @@ resource "azurerm_container_group" "rabbitmq" {
     environment_variables = {
       RABBITMQ_DEFAULT_USER = data.azurerm_key_vault_secret.rabbitmq-login.value
       RABBITMQ_DEFAULT_PASS = data.azurerm_key_vault_secret.rabbitmq-password.value
+    }
+  }
+}
+
+###################
+# CONSOLE SECTION #
+###################
+resource "azurerm_container_group" "console" {
+  name                = "aci-console-${var.project_name}${var.environment_suffix}"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  ip_address_type     = "None"
+  dns_name_label      = "aci-console-${var.project_name}${var.environment_suffix}"
+  os_type             = "Linux"
+  exposed_port = []
+
+  container {
+    name   = "console"
+    image  = "matthieuf/pubsub-console:1.0"
+    cpu    = "0.5"
+    memory = "1.5"
+
+    environment_variables = {
+      "RabbitMQ__Hostname" = azurerm_container_group.rabbitmq.fqdn,
+      "RabbitMQ__Username" = data.azurerm_key_vault_secret.rabbitmq-login.value,
+      "RabbitMQ__Password" = data.azurerm_key_vault_secret.rabbitmq-password.value,
     }
   }
 }
